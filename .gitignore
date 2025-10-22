@@ -39,3 +39,13 @@
 
 # debug information files
 *.dwo
+
+# IDEs and editors
+.idea/
+.vscode/
+
+# macOS
+.DS_Store
+
+# executable
+bin/
