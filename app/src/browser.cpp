@@ -3,5 +3,5 @@
 Browser::Browser() {}
 
 void Browser::run() {
-    window.run();
+    window.run(searchBar);
 };

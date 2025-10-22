@@ -1,9 +1,16 @@
-#include <SFML/Window.hpp>
+#ifndef WINDOW_H
+#define WINDOW_H
+
+#include <SFML/Graphics.hpp>
+#include "searchbar.h"
 
 class Window {
     private:
-        sf::Window window;
+        sf::RenderWindow window;
     public:
         Window();
-        void run();
+        void run(SearchBar& searchBar);
+        void draw(SearchBar& searchBar);
 };
+
+#endif

@@ -1,8 +1,10 @@
 #include "window.h"
 
-Window::Window() : window(sf::VideoMode({800, 600}), "mini browser") {}
+Window::Window() : window(sf::VideoMode({800, 600}), "mini browser") {
+    window.setFramerateLimit(60);
+}
 
-void Window::run() {
+void Window::run(SearchBar &searchBar) {
     while (window.isOpen())
     {
         // check all the window's events that were triggered since the last iteration of the loop
@@ -12,5 +14,13 @@ void Window::run() {
             if (event->is<sf::Event::Closed>())
                 window.close();
         }
+
+        draw(searchBar);
     }
+}
+
+void Window::draw(SearchBar &searchBar) {
+    window.clear(sf::Color::White);
+    searchBar.draw(window);
+    window.display();
 }
