@@ -8,10 +8,12 @@ class Browser {
     private:
         Window window;
         SearchBar searchBar;
+        std::string url;
 
     public:
         Browser();
         void run();
+        const std::string& getUrl() const;
 };
 
 #endif

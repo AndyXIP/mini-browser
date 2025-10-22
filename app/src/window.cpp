@@ -13,6 +13,9 @@ void Window::run(SearchBar &searchBar) {
             // "close requested" event: we close the window
             if (event->is<sf::Event::Closed>())
                 window.close();
+
+            // Forward events to the search bar for text input and focus
+            searchBar.handleEvent(*event);
         }
 
         draw(searchBar);
