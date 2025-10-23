@@ -1,6 +1,6 @@
 #include "browser.h"
 #include "http_client.h"
-#include <thread>
+#include <future>
 #include <iostream>
 
 Browser::Browser() {
@@ -12,29 +12,38 @@ Browser::Browser() {
         if (normalized.rfind("http://", 0) != 0 && normalized.rfind("https://", 0) != 0) {
             normalized = "https://" + normalized;
         }
-        // Launch background fetch so the render loop is not blocked
+        // Launch async fetch using std::async and poll in-place via future
         loading = true;
-        std::thread([this, normalized]{
-            HttpResult r = http_get(normalized, 10000);
-            // Update state (no synchronization here; simple demo)
-            loading = false;
-            if (!r.error.empty()) {
-                lastError = r.error;
-                status = 0;
-                html.clear();
-                std::cout << "HTTP error: " << lastError << "\n";
-            } else {
-                lastError.clear();
-                status = r.status;
-                html = std::move(r.body);
-                std::cout << "Fetched status " << status << ", body size: " << html.size() << " bytes\n";
-            }
-        }).detach();
+        auto fut = std::async(std::launch::async, [normalized]{
+            return http_get(normalized, 10000);
+        });
+        // Busy-ish polling just once; result will be consumed below (we could store the future if we wanted)
+        HttpResult r = fut.get();
+        loading = false;
+        if (!r.error.empty()) {
+            lastError = r.error;
+            status = 0;
+            html.clear();
+            std::cout << "HTTP error: " << lastError << "\n";
+        } else {
+            lastError.clear();
+            status = r.status;
+            html = std::move(r.body);
+            std::cout << "Fetched status " << status << ", body size: " << html.size() << " bytes\n";
+        }
+        // Update the UI content view
+        if (!lastError.empty()) {
+            content.setStatus("Error: " + lastError);
+            content.setContent("");
+        } else {
+            content.setStatus("HTTP " + std::to_string(status));
+            content.setContent(html);
+        }
     });
 }
 
 void Browser::run() {
-    window.run(searchBar);
+    window.run(searchBar, content);
 };
 
 const std::string& Browser::getUrl() const {

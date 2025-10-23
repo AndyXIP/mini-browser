@@ -3,11 +3,13 @@
 
 #include "window.h"
 #include "searchbar.h"
+#include "content_view.h"
 
 class Browser {
     private:
         Window window;
         SearchBar searchBar;
+        ContentView content;
         std::string url;
         bool loading = false;
         long status = 0;
