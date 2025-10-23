@@ -1,5 +1,6 @@
 #include "browser.h"
 #include "http_client.h"
+#include "html_parser.h"
 #include <future>
 #include <iostream>
 
@@ -36,8 +37,11 @@ Browser::Browser() {
             content.setStatus("Error: " + lastError);
             content.setContent("");
         } else {
-            content.setStatus("HTTP " + std::to_string(status));
-            content.setContent(html);
+            auto parsed = parse_html_basic(html);
+            std::string statusLine = "HTTP " + std::to_string(status);
+            if (!parsed.title.empty()) statusLine += " — " + parsed.title;
+            content.setStatus(statusLine);
+            content.setContent(parsed.text);
         }
     });
 }

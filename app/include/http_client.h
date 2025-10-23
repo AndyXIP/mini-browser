@@ -9,7 +9,6 @@ struct HttpResult {
     std::string error {};
 };
 
-
 HttpResult http_get(const std::string& url, int timeout_ms = 10000);
 
 #endif

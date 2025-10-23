@@ -70,7 +70,7 @@ void ContentView::onResize(const sf::Vector2u& size) {
 }
 
 void ContentView::rewrap() {
-    // Very naive word wrap based on approximate glyph width
+    // Respect existing newlines from the parser and wrap each line independently
     if (raw_.empty()) { wrapped_.clear(); bodyText_.setString(""); return; }
 
     // Approximate: character width ~ 0.6 * characterSize; adjust for your font
@@ -78,25 +78,34 @@ void ContentView::rewrap() {
     const std::size_t maxCols = static_cast<std::size_t>(std::max(1.f, viewport_.size.x / charW));
 
     std::ostringstream out;
-    std::size_t col = 0;
     std::size_t shown = 0;
     const std::size_t limit = 4000; // preview cap to avoid huge draw cost
 
-    std::istringstream in(raw_);
-    std::string word;
-    while (in >> word) {
-        if (shown + word.size() > limit) { break; }
-        if (col == 0) {
-            out << word;
-            col = word.size();
-        } else if (col + 1 + word.size() <= maxCols) {
-            out << ' ' << word;
-            col += 1 + word.size();
-        } else {
-            out << '\n' << word;
-            col = word.size();
+    std::istringstream lines(raw_);
+    std::string line;
+    bool firstLine = true;
+    while (std::getline(lines, line)) {
+        if (!firstLine) out << '\n';
+        firstLine = false;
+
+        std::istringstream words(line);
+        std::string word;
+        std::size_t col = 0;
+        while (words >> word) {
+            if (shown + word.size() > limit) { break; }
+            if (col == 0) {
+                out << word;
+                col = word.size();
+            } else if (col + 1 + word.size() <= maxCols) {
+                out << ' ' << word;
+                col += 1 + word.size();
+            } else {
+                out << '\n' << word;
+                col = word.size();
+            }
+            shown += word.size() + 1;
         }
-        shown += word.size() + 1;
+        if (shown >= limit) break;
     }
 
     wrapped_ = out.str();
