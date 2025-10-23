@@ -1,6 +1,6 @@
-#include "browser.h"
-#include "http_client.h"
-#include "html_parser.h"
+#include "browser/browser.h"
+#include "core/http_client.h"
+#include "core/html_parser.h"
 #include <future>
 #include <iostream>
 

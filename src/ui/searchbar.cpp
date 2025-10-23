@@ -1,4 +1,4 @@
-#include "searchbar.h"
+#include "ui/searchbar.h"
 
 SearchBar::SearchBar()
   : background({780.f, 30.f}),

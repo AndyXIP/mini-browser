@@ -1,4 +1,4 @@
-#include "browser.h"
+#include "browser/browser.h"
 
 int main () {
     Browser browser;

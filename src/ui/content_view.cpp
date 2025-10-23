@@ -1,4 +1,4 @@
-#include "content_view.h"
+#include "ui/content_view.h"
 
 #include <algorithm>
 #include <sstream>

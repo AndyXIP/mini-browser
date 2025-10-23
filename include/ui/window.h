@@ -2,8 +2,8 @@
 #define WINDOW_H
 
 #include <SFML/Graphics.hpp>
-#include "searchbar.h"
-#include "content_view.h"
+#include "ui/searchbar.h"
+#include "ui/content_view.h"
 
 class Window {
     private:

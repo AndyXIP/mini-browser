@@ -1,4 +1,4 @@
-#include "window.h"
+#include "ui/window.h"
 
 Window::Window() : window(sf::VideoMode({800, 600}), "mini browser") {
     window.setFramerateLimit(60);

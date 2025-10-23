@@ -1,9 +1,9 @@
 #ifndef BROWSER_H
 #define BROWSER_H
 
-#include "window.h"
-#include "searchbar.h"
-#include "content_view.h"
+#include "ui/window.h"
+#include "ui/searchbar.h"
+#include "ui/content_view.h"
 
 class Browser {
     private:
