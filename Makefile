@@ -2,11 +2,11 @@
 CXX = g++
 CXXFLAGS = -std=c++23 -Iapp/include -I/opt/homebrew/opt/sfml/include
 
-# Linker flags using Homebrew SFML
-LDFLAGS = -L/opt/homebrew/opt/sfml/lib -lsfml-graphics -lsfml-window -lsfml-system -Wl,-rpath,/opt/homebrew/opt/sfml/lib
+# Linker flags using Homebrew SFML 
+LDFLAGS = -L/opt/homebrew/opt/sfml/lib -lsfml-graphics -lsfml-window -lsfml-system -Wl,-rpath,/opt/homebrew/opt/sfml/lib -lcurl
 
 # Source files and output binary
-APP = app/src/main.cpp app/src/window.cpp app/src/browser.cpp app/src/searchbar.cpp
+APP = app/src/main.cpp app/src/window.cpp app/src/browser.cpp app/src/searchbar.cpp app/src/http_client.cpp
 TARGET = bin/main
 
 # Default rule to build executable
