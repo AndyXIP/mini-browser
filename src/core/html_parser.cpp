@@ -116,6 +116,68 @@ static std::string trim_lines(const std::string& s) {
     return out.str();
 }
 
+// Extract links from HTML: find <a href="...">text</a> and record positions
+static std::vector<Link> extract_links(const std::string& html, const std::string& plainText) {
+    std::vector<Link> links;
+    std::string lower = to_lower(html);
+    
+    size_t pos = 0;
+    while (true) {
+        // Find next <a tag
+        pos = lower.find("<a ", pos);
+        if (pos == std::string::npos) break;
+        
+        // Find href attribute
+        size_t href_start = lower.find("href=", pos);
+        if (href_start == std::string::npos || href_start > lower.find('>', pos)) {
+            pos++;
+            continue;
+        }
+        
+        href_start += 5; // skip "href="
+        char quote = html[href_start];
+        size_t href_end;
+        if (quote == '"' || quote == '\'') {
+            href_start++;
+            href_end = html.find(quote, href_start);
+        } else {
+            href_end = html.find_first_of(" >", href_start);
+        }
+        
+        if (href_end == std::string::npos) { pos++; continue; }
+        std::string url = html.substr(href_start, href_end - href_start);
+        
+        // Find closing >
+        size_t tag_close = html.find('>', href_end);
+        if (tag_close == std::string::npos) { pos++; continue; }
+        
+        // Find </a>
+        size_t end_tag = lower.find("</a>", tag_close);
+        if (end_tag == std::string::npos) { pos++; continue; }
+        
+        // Extract link text and strip inner tags
+        std::string link_text = html.substr(tag_close + 1, end_tag - (tag_close + 1));
+        link_text = strip_tags(link_text);
+        link_text = decode_entities(link_text);
+        link_text = trim_lines(link_text);
+        
+        // Find position in plain text (approximate: search for link text)
+        size_t text_pos = plainText.find(link_text);
+        if (text_pos != std::string::npos && !link_text.empty()) {
+            Link link;
+            link.text = link_text;
+            link.url = url;
+            link.start_pos = text_pos;
+            link.end_pos = text_pos + link_text.size();
+            links.push_back(link);
+        }
+        
+        pos = end_tag + 4;
+    }
+    
+    return links;
+}
+
 }
 
 ParsedPage parse_html_basic(const std::string& html) {
@@ -142,6 +204,10 @@ ParsedPage parse_html_basic(const std::string& html) {
     body = decode_entities(body);
     body = trim_lines(body);
 
-    result.text = std::move(body);
+    result.text = body;
+    
+    // Extract links and their positions
+    result.links = extract_links(html, result.text);
+    
     return result;
 }
