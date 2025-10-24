@@ -33,12 +33,26 @@ void ContentView::setStatus(const std::string& statusText) {
     statusText_.setString(statusText);
 }
 
-void ContentView::setContent(const std::string& text) {
+void ContentView::setContent(const std::string& text, const std::vector<Link>& links) {
     raw_ = text;
+    links_ = links;
     rewrap();
 }
 
 bool ContentView::handleEvent(const sf::Event& event) {
+    // Link click detection
+    if (const auto* e = event.getIf<sf::Event::MouseButtonPressed>()) {
+        if (e->button == sf::Mouse::Button::Left) {
+            sf::Vector2f mousePos(static_cast<float>(e->position.x), static_cast<float>(e->position.y));
+            for (const auto& rlink : renderedLinks_) {
+                if (rlink.bounds.contains(mousePos)) {
+                    if (onLinkClick_) onLinkClick_(rlink.url);
+                    return true;
+                }
+            }
+        }
+    }
+
     if (const auto* e = event.getIf<sf::Event::MouseWheelScrolled>()) {
         // Scroll by lines
         float deltaLines = e->delta; // positive up
@@ -58,6 +72,32 @@ void ContentView::draw(sf::RenderWindow& window) {
 
     window.draw(statusText_);
     window.draw(bodyText_);
+
+    // Render links as underlined blue text (approximate by searching wrapped_)
+    renderedLinks_.clear();
+    for (const auto& link : links_) {
+        if (link.text.empty()) continue;
+        // Find first occurrence of link.text in wrapped_
+        std::size_t start = wrapped_.find(link.text);
+        if (start == std::string::npos) continue;
+        std::size_t end = start + link.text.size();
+
+        sf::Vector2f startPos = bodyText_.findCharacterPos(start);
+        sf::Vector2f endPos = bodyText_.findCharacterPos(end);
+
+        // Underline (single-line assumption). If wrapped across lines, this is imperfect.
+        sf::RectangleShape underline;
+        underline.setPosition({startPos.x, startPos.y + static_cast<float>(bodyText_.getCharacterSize())});
+        underline.setSize({std::max(1.f, endPos.x - startPos.x), 1.f});
+        underline.setFillColor(sf::Color::Blue);
+        window.draw(underline);
+
+        // Clickable bounds (a little taller than text height)
+        RenderedLink rlink;
+        rlink.url = link.url;
+        rlink.bounds = sf::FloatRect(startPos, {std::max(1.f, endPos.x - startPos.x), static_cast<float>(bodyText_.getCharacterSize()) * 1.4f});
+        renderedLinks_.push_back(rlink);
+    }
 }
 
 void ContentView::onResize(const sf::Vector2u& size) {
