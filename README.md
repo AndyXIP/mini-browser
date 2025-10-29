@@ -199,6 +199,21 @@ Notes:
 
 ---
 
+## Limitations
+
+- **No JavaScript**: Scripts are stripped but not executed
+- **No CSS**: Styling, colors, fonts, and layouts are ignored
+- **No Images**: Image tags are removed; only text content is displayed
+- **Basic HTML Support**: Complex nested structures may render incorrectly
+- **Single-threaded UI**: Window may freeze briefly during page fetches
+- **No HTTPS Verification UI**: Certificate errors are not surfaced to the user
+- **Limited Entity Decoding**: Only common entities (&lt;, &gt;, &amp;, &quot;, &#39;) are supported
+- **Relative URL Resolution**: Simple logic that may fail for edge cases
+- **No History/Bookmarks**: Navigation state is not persisted between sessions
+- **macOS-focused**: Font paths and build instructions target macOS (adaptable to Linux/Windows)
+
+---
+
 ## Suggested Future Directions
 
 - Loading indicator and status messages in the UI
